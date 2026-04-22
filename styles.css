@@ -81,7 +81,8 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
-.preview-panel {
+.preview-panel,
+.guide-panel {
   background: #fff;
   border: 1px solid #dce1ef;
   border-radius: 14px;
@@ -129,4 +130,21 @@ canvas {
   border: 1px solid #dde3f3;
   padding: 1px 6px;
   border-radius: 6px;
+}
+
+.guide-panel {
+  margin-top: 20px;
+}
+
+.row-guide {
+  margin: 0;
+  max-height: 380px;
+  overflow: auto;
+  white-space: pre-wrap;
+  background: #0f172a;
+  color: #d9e8ff;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
 }

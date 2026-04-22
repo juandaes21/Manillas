@@ -1,11 +1,13 @@
 const imageInput = document.getElementById('imageInput');
 const beadWidthInput = document.getElementById('beadWidth');
+const beadHeightInput = document.getElementById('beadHeight');
 const beadSizeInput = document.getElementById('beadSize');
 const paletteSizeInput = document.getElementById('paletteSize');
 const generateBtn = document.getElementById('generateBtn');
 const downloadPngBtn = document.getElementById('downloadPngBtn');
 const downloadCsvBtn = document.getElementById('downloadCsvBtn');
 const summary = document.getElementById('summary');
+const rowGuide = document.getElementById('rowGuide');
 const sourceCanvas = document.getElementById('sourceCanvas');
 const beadCanvas = document.getElementById('beadCanvas');
 const legend = document.getElementById('legend');
@@ -71,18 +73,44 @@ function createCsvFromMatrix(matrix) {
   return matrix.map((row) => row.join(',')).join('\n');
 }
 
+function compressRow(row) {
+  if (row.length === 0) {
+    return '';
+  }
+
+  const parts = [];
+  let current = row[0];
+  let count = 1;
+
+  for (let i = 1; i < row.length; i += 1) {
+    if (row[i] === current) {
+      count += 1;
+    } else {
+      parts.push(`${current}x${count}`);
+      current = row[i];
+      count = 1;
+    }
+  }
+
+  parts.push(`${current}x${count}`);
+  return parts.join(' · ');
+}
+
+function renderRowGuide(matrix) {
+  const lines = matrix.map((row, idx) => `Fila ${idx + 1}: ${compressRow(row)}`);
+  rowGuide.textContent = lines.join('\n');
+}
+
 function generatePattern() {
   if (!loadedImage) {
     alert('Primero sube una imagen.');
     return;
   }
 
-  const beadWidth = clamp(parseInt(beadWidthInput.value, 10) || 60, 4, 300);
-  const beadSize = clamp(parseInt(beadSizeInput.value, 10) || 12, 4, 40);
-  const paletteSize = clamp(parseInt(paletteSizeInput.value, 10) || 24, 2, 64);
-
-  const aspectRatio = loadedImage.height / loadedImage.width;
-  const beadHeight = Math.max(1, Math.round(beadWidth * aspectRatio));
+  const beadWidth = clamp(parseInt(beadWidthInput.value, 10) || 200, 40, 400);
+  const beadHeight = clamp(parseInt(beadHeightInput.value, 10) || 12, 6, 30);
+  const beadSize = clamp(parseInt(beadSizeInput.value, 10) || 10, 4, 30);
+  const paletteSize = clamp(parseInt(paletteSizeInput.value, 10) || 12, 2, 32);
 
   sourceCanvas.width = loadedImage.width;
   sourceCanvas.height = loadedImage.height;
@@ -105,7 +133,6 @@ function generatePattern() {
   const quantLevels = clamp(Math.round(Math.cbrt(paletteSize) + 1), 2, 8);
   const usageMap = new Map();
 
-  // Paso 1: contar colores cuantizados.
   const colors = [];
   for (let y = 0; y < beadHeight; y += 1) {
     for (let x = 0; x < beadWidth; x += 1) {
@@ -117,7 +144,6 @@ function generatePattern() {
     }
   }
 
-  // Paso 2: limitar cantidad real de colores al máximo solicitado.
   const paletteByFrequency = Array.from(usageMap.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, paletteSize)
@@ -127,7 +153,6 @@ function generatePattern() {
   const colorToId = new Map(paletteByFrequency.map((hex, i) => [hex, i + 1]));
   const matrix = [];
 
-  // Paso 3: dibujar bolitas y generar matriz numérica.
   for (let y = 0; y < beadHeight; y += 1) {
     const row = [];
     for (let x = 0; x < beadWidth; x += 1) {
@@ -147,8 +172,9 @@ function generatePattern() {
     matrix.push(row);
   }
 
-  summary.textContent = `Patrón: ${beadWidth} × ${beadHeight} bolitas (${beadWidth * beadHeight} total) · ${paletteByFrequency.length} colores.`;
+  summary.textContent = `Manilla: ${beadWidth} columnas × ${beadHeight} filas (${beadWidth * beadHeight} bolitas) · ${paletteByFrequency.length} colores.`;
   renderLegend(usageMap, paletteByFrequency);
+  renderRowGuide(matrix);
 
   lastPattern = {
     beadWidth,
@@ -167,7 +193,7 @@ function downloadPatternPng() {
 
   const link = document.createElement('a');
   link.href = beadCanvas.toDataURL('image/png');
-  link.download = `miyuki-pattern-${lastPattern.beadWidth}x${lastPattern.beadHeight}.png`;
+  link.download = `miyuki-manilla-${lastPattern.beadWidth}x${lastPattern.beadHeight}.png`;
   link.click();
 }
 
@@ -182,7 +208,7 @@ function downloadPatternCsv() {
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = `miyuki-pattern-${lastPattern.beadWidth}x${lastPattern.beadHeight}.csv`;
+  link.download = `miyuki-manilla-${lastPattern.beadWidth}x${lastPattern.beadHeight}.csv`;
   link.click();
 
   URL.revokeObjectURL(url);

@@ -10,7 +10,7 @@
     <main class="app">
       <h1>Convertidor a diseño de bolitas Miyuki</h1>
       <p>
-        Sube una imagen y conviértela a un patrón con una cantidad fija de bolitas de ancho.
+        Sube una imagen y conviértela en una guía de manilla fácil de construir.
       </p>
 
       <section class="controls">
@@ -20,21 +20,26 @@
         </label>
 
         <label>
-          Bolitas de ancho
-          <input id="beadWidth" type="number" min="4" max="300" value="60" />
+          Largo manilla (columnas)
+          <input id="beadWidth" type="number" min="40" max="400" value="200" />
         </label>
 
         <label>
-          Grosor (px por bolita)
-          <input id="beadSize" type="number" min="4" max="40" value="12" />
+          Grosor manilla (filas)
+          <input id="beadHeight" type="number" min="6" max="30" value="12" />
+        </label>
+
+        <label>
+          Grosor visual (px por bolita)
+          <input id="beadSize" type="number" min="4" max="30" value="10" />
         </label>
 
         <label>
           Colores máximos (paleta)
-          <input id="paletteSize" type="number" min="2" max="64" value="24" />
+          <input id="paletteSize" type="number" min="2" max="32" value="12" />
         </label>
 
-        <button id="generateBtn">Generar diseño</button>
+        <button id="generateBtn">Generar guía de manilla</button>
       </section>
 
       <section class="actions">
@@ -55,6 +60,14 @@
       </section>
 
       <section id="legend" class="legend"></section>
+
+      <section class="guide-panel">
+        <h2>Guía rápida por filas</h2>
+        <p>
+          Construye de <strong>izquierda a derecha</strong>. Cada fila muestra secuencias para ensartar más fácil.
+        </p>
+        <pre id="rowGuide" class="row-guide">Genera un patrón para ver la guía.</pre>
+      </section>
     </main>
 
     <script src="app.js"></script>
