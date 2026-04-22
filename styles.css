@@ -1,0 +1,100 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  line-height: 1.4;
+}
+
+body {
+  margin: 0;
+  background: #f4f6fb;
+  color: #1b1c1f;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  margin-bottom: 6px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+  margin-bottom: 24px;
+  align-items: end;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.controls input,
+.controls button {
+  border: 1px solid #c6cce0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.controls button {
+  cursor: pointer;
+  background: #4b67ff;
+  color: #fff;
+  font-weight: 600;
+}
+
+.preview-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.preview-panel {
+  background: #fff;
+  border: 1px solid #dce1ef;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+canvas {
+  width: 100%;
+  background: #fff;
+  border: 1px dashed #ccd3e5;
+  border-radius: 8px;
+  image-rendering: pixelated;
+}
+
+.legend {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.legend-item {
+  background: #fff;
+  border: 1px solid #dce1ef;
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diseñador Miyuki</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1>Convertidor a diseño de bolitas Miyuki</h1>
+      <p>
+        Sube una imagen y conviértela a un patrón con una cantidad fija de bolitas de ancho.
+      </p>
+
+      <section class="controls">
+        <label>
+          Imagen
+          <input id="imageInput" type="file" accept="image/*" />
+        </label>
+
+        <label>
+          Bolitas de ancho
+          <input id="beadWidth" type="number" min="4" max="300" value="60" />
+        </label>
+
+        <label>
+          Grosor (px por bolita)
+          <input id="beadSize" type="number" min="4" max="40" value="12" />
+        </label>
+
+        <label>
+          Colores máximos (paleta)
+          <input id="paletteSize" type="number" min="2" max="64" value="24" />
+        </label>
+
+        <button id="generateBtn">Generar diseño</button>
+      </section>
+
+      <section class="preview-grid">
+        <div class="preview-panel">
+          <h2>Imagen original</h2>
+          <canvas id="sourceCanvas"></canvas>
+        </div>
+        <div class="preview-panel">
+          <h2>Patrón Miyuki</h2>
+          <canvas id="beadCanvas"></canvas>
+        </div>
+      </section>
+
+      <section id="legend" class="legend"></section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
