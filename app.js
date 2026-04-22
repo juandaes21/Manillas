@@ -3,6 +3,9 @@ const beadWidthInput = document.getElementById('beadWidth');
 const beadSizeInput = document.getElementById('beadSize');
 const paletteSizeInput = document.getElementById('paletteSize');
 const generateBtn = document.getElementById('generateBtn');
+const downloadPngBtn = document.getElementById('downloadPngBtn');
+const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+const summary = document.getElementById('summary');
 const sourceCanvas = document.getElementById('sourceCanvas');
 const beadCanvas = document.getElementById('beadCanvas');
 const legend = document.getElementById('legend');
@@ -11,6 +14,7 @@ const sourceCtx = sourceCanvas.getContext('2d');
 const beadCtx = beadCanvas.getContext('2d');
 
 let loadedImage = null;
+let lastPattern = null;
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -33,18 +37,17 @@ function drawCircle(ctx, x, y, radius, fillStyle) {
   ctx.fillStyle = fillStyle;
   ctx.fill();
 
-  // brillo suave para dar efecto de bolita
   ctx.beginPath();
   ctx.arc(x - radius * 0.3, y - radius * 0.3, radius * 0.35, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(255,255,255,0.35)';
   ctx.fill();
 }
 
-function renderLegend(usageMap) {
+function renderLegend(usageMap, paletteByFrequency) {
   legend.innerHTML = '';
 
-  const entries = Array.from(usageMap.entries()).sort((a, b) => b[1] - a[1]);
-  entries.forEach(([hex, count], index) => {
+  paletteByFrequency.forEach((hex, index) => {
+    const count = usageMap.get(hex) || 0;
     const item = document.createElement('div');
     item.className = 'legend-item';
 
@@ -52,12 +55,20 @@ function renderLegend(usageMap) {
     swatch.className = 'swatch';
     swatch.style.backgroundColor = hex;
 
-    const text = document.createElement('span');
-    text.textContent = `#${index + 1} ${hex.toUpperCase()} · ${count} bolitas`;
+    const code = document.createElement('span');
+    code.className = 'code';
+    code.textContent = `C${index + 1}`;
 
-    item.append(swatch, text);
+    const text = document.createElement('span');
+    text.textContent = `${hex.toUpperCase()} · ${count} bolitas`;
+
+    item.append(swatch, code, text);
     legend.appendChild(item);
   });
+}
+
+function createCsvFromMatrix(matrix) {
+  return matrix.map((row) => row.join(',')).join('\n');
 }
 
 function generatePattern() {
@@ -94,24 +105,87 @@ function generatePattern() {
   const quantLevels = clamp(Math.round(Math.cbrt(paletteSize) + 1), 2, 8);
   const usageMap = new Map();
 
+  // Paso 1: contar colores cuantizados.
+  const colors = [];
   for (let y = 0; y < beadHeight; y += 1) {
     for (let x = 0; x < beadWidth; x += 1) {
       const idx = (y * beadWidth + x) * 4;
-      const r = data[idx];
-      const g = data[idx + 1];
-      const b = data[idx + 2];
-
-      const [qr, qg, qb] = quantizeColor(r, g, b, quantLevels);
+      const [qr, qg, qb] = quantizeColor(data[idx], data[idx + 1], data[idx + 2], quantLevels);
       const hex = rgbToHex(qr, qg, qb);
+      colors.push(hex);
       usageMap.set(hex, (usageMap.get(hex) || 0) + 1);
+    }
+  }
+
+  // Paso 2: limitar cantidad real de colores al máximo solicitado.
+  const paletteByFrequency = Array.from(usageMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, paletteSize)
+    .map(([hex]) => hex);
+
+  const fallbackColor = paletteByFrequency[0];
+  const colorToId = new Map(paletteByFrequency.map((hex, i) => [hex, i + 1]));
+  const matrix = [];
+
+  // Paso 3: dibujar bolitas y generar matriz numérica.
+  for (let y = 0; y < beadHeight; y += 1) {
+    const row = [];
+    for (let x = 0; x < beadWidth; x += 1) {
+      const idx = y * beadWidth + x;
+      let hex = colors[idx];
+      if (!colorToId.has(hex)) {
+        hex = fallbackColor;
+      }
+
+      const colorId = colorToId.get(hex);
+      row.push(`C${colorId}`);
 
       const centerX = x * beadSize + beadSize / 2;
       const centerY = y * beadSize + beadSize / 2;
       drawCircle(beadCtx, centerX, centerY, beadSize * 0.45, hex);
     }
+    matrix.push(row);
   }
 
-  renderLegend(usageMap);
+  summary.textContent = `Patrón: ${beadWidth} × ${beadHeight} bolitas (${beadWidth * beadHeight} total) · ${paletteByFrequency.length} colores.`;
+  renderLegend(usageMap, paletteByFrequency);
+
+  lastPattern = {
+    beadWidth,
+    beadHeight,
+    matrix,
+  };
+
+  downloadPngBtn.disabled = false;
+  downloadCsvBtn.disabled = false;
+}
+
+function downloadPatternPng() {
+  if (!lastPattern) {
+    return;
+  }
+
+  const link = document.createElement('a');
+  link.href = beadCanvas.toDataURL('image/png');
+  link.download = `miyuki-pattern-${lastPattern.beadWidth}x${lastPattern.beadHeight}.png`;
+  link.click();
+}
+
+function downloadPatternCsv() {
+  if (!lastPattern) {
+    return;
+  }
+
+  const csv = createCsvFromMatrix(lastPattern.matrix);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `miyuki-pattern-${lastPattern.beadWidth}x${lastPattern.beadHeight}.csv`;
+  link.click();
+
+  URL.revokeObjectURL(url);
 }
 
 imageInput.addEventListener('change', (event) => {
@@ -131,3 +205,5 @@ imageInput.addEventListener('change', (event) => {
 });
 
 generateBtn.addEventListener('click', generatePattern);
+downloadPngBtn.addEventListener('click', downloadPatternPng);
+downloadCsvBtn.addEventListener('click', downloadPatternCsv);

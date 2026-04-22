@@ -11,6 +11,9 @@ App web simple para convertir cualquier imagen en un patrón tipo Miyuki.
    - **Grosor**: tamaño visual de cada bolita en píxeles.
    - **Colores máximos**: simplifica la paleta para que el patrón sea más fácil de armar.
 4. Haz clic en **Generar diseño**.
+5. Descarga:
+   - **PNG del patrón** para imprimir/compartir.
+   - **Matriz CSV** con códigos de color (`C1`, `C2`, etc.).
 
 ## Despliegue en GitHub Pages
 
@@ -22,4 +25,4 @@ App web simple para convertir cualquier imagen en un patrón tipo Miyuki.
 ## Notas
 
 - El alto del patrón se calcula automáticamente manteniendo la proporción de la imagen original.
-- Se incluye una leyenda con colores usados y número de bolitas por color.
+- La leyenda muestra el código de color (`C1`, `C2`...) y el conteo de bolitas por color.
