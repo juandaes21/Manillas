@@ -10,7 +10,7 @@
     <main class="app">
       <h1>Convertidor a diseño de bolitas Miyuki</h1>
       <p>
-        Sube una imagen y conviértela en una guía de manilla fácil de construir.
+        Crea una guía estilo <strong>bead tool</strong>: vista de bolitas, tabla con códigos y secuencias por fila.
       </p>
 
       <section class="controls">
@@ -44,7 +44,8 @@
 
       <section class="actions">
         <div id="summary" class="summary">Carga una imagen para empezar.</div>
-        <button id="downloadPngBtn" disabled>Descargar PNG del patrón</button>
+        <button id="downloadPngBtn" disabled>Descargar PNG bolitas</button>
+        <button id="downloadChartBtn" disabled>Descargar PNG tabla</button>
         <button id="downloadCsvBtn" disabled>Descargar matriz CSV</button>
       </section>
 
@@ -54,8 +55,12 @@
           <canvas id="sourceCanvas"></canvas>
         </div>
         <div class="preview-panel">
-          <h2>Patrón Miyuki</h2>
+          <h2>Vista bolitas</h2>
           <canvas id="beadCanvas"></canvas>
+        </div>
+        <div class="preview-panel">
+          <h2>Tabla de patrón (códigos)</h2>
+          <canvas id="chartCanvas"></canvas>
         </div>
       </section>
 

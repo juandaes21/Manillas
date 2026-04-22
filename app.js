@@ -5,15 +5,18 @@ const beadSizeInput = document.getElementById('beadSize');
 const paletteSizeInput = document.getElementById('paletteSize');
 const generateBtn = document.getElementById('generateBtn');
 const downloadPngBtn = document.getElementById('downloadPngBtn');
+const downloadChartBtn = document.getElementById('downloadChartBtn');
 const downloadCsvBtn = document.getElementById('downloadCsvBtn');
 const summary = document.getElementById('summary');
 const rowGuide = document.getElementById('rowGuide');
 const sourceCanvas = document.getElementById('sourceCanvas');
 const beadCanvas = document.getElementById('beadCanvas');
+const chartCanvas = document.getElementById('chartCanvas');
 const legend = document.getElementById('legend');
 
 const sourceCtx = sourceCanvas.getContext('2d');
 const beadCtx = beadCanvas.getContext('2d');
+const chartCtx = chartCanvas.getContext('2d');
 
 let loadedImage = null;
 let lastPattern = null;
@@ -43,6 +46,14 @@ function drawCircle(ctx, x, y, radius, fillStyle) {
   ctx.arc(x - radius * 0.3, y - radius * 0.3, radius * 0.35, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(255,255,255,0.35)';
   ctx.fill();
+}
+
+function isDarkColor(hex) {
+  const r = Number.parseInt(hex.slice(1, 3), 16);
+  const g = Number.parseInt(hex.slice(3, 5), 16);
+  const b = Number.parseInt(hex.slice(5, 7), 16);
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return luminance < 0.5;
 }
 
 function renderLegend(usageMap, paletteByFrequency) {
@@ -99,6 +110,61 @@ function compressRow(row) {
 function renderRowGuide(matrix) {
   const lines = matrix.map((row, idx) => `Fila ${idx + 1}: ${compressRow(row)}`);
   rowGuide.textContent = lines.join('\n');
+}
+
+function renderPatternChart(matrix, colorById, cellSize) {
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  const axisPad = cellSize * 1.5;
+
+  chartCanvas.width = cols * cellSize + axisPad;
+  chartCanvas.height = rows * cellSize + axisPad;
+
+  chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+  chartCtx.fillStyle = '#ffffff';
+  chartCtx.fillRect(0, 0, chartCanvas.width, chartCanvas.height);
+
+  chartCtx.font = `${Math.max(10, cellSize * 0.42)}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+  chartCtx.textAlign = 'center';
+  chartCtx.textBaseline = 'middle';
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const code = matrix[row][col];
+      const fill = colorById.get(code) || '#cccccc';
+      const x = axisPad + col * cellSize;
+      const y = row * cellSize;
+
+      chartCtx.fillStyle = fill;
+      chartCtx.fillRect(x, y, cellSize, cellSize);
+
+      chartCtx.strokeStyle = '#98a2b3';
+      chartCtx.lineWidth = 0.7;
+      chartCtx.strokeRect(x, y, cellSize, cellSize);
+
+      chartCtx.fillStyle = isDarkColor(fill) ? '#ffffff' : '#111827';
+      chartCtx.fillText(code, x + cellSize / 2, y + cellSize / 2);
+    }
+  }
+
+  chartCtx.fillStyle = '#334155';
+  chartCtx.font = `${Math.max(10, cellSize * 0.35)}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+
+  for (let col = 0; col < cols; col += 1) {
+    if ((col + 1) % 10 !== 0 && col !== 0 && col !== cols - 1) {
+      continue;
+    }
+    const labelX = axisPad + col * cellSize + cellSize / 2;
+    chartCtx.fillText(`${col + 1}`, labelX, rows * cellSize + cellSize * 0.6);
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    if ((row + 1) % 2 !== 0 && row !== 0 && row !== rows - 1) {
+      continue;
+    }
+    const labelY = row * cellSize + cellSize / 2;
+    chartCtx.fillText(`${row + 1}`, cellSize * 0.7, labelY);
+  }
 }
 
 function generatePattern() {
@@ -172,6 +238,11 @@ function generatePattern() {
     matrix.push(row);
   }
 
+  const colorById = new Map(paletteByFrequency.map((hex, i) => [`C${i + 1}`, hex]));
+  const chartCellSize = clamp(Math.round(beadSize * 1.1), 12, 28);
+
+  renderPatternChart(matrix, colorById, chartCellSize);
+
   summary.textContent = `Manilla: ${beadWidth} columnas × ${beadHeight} filas (${beadWidth * beadHeight} bolitas) · ${paletteByFrequency.length} colores.`;
   renderLegend(usageMap, paletteByFrequency);
   renderRowGuide(matrix);
@@ -183,7 +254,15 @@ function generatePattern() {
   };
 
   downloadPngBtn.disabled = false;
+  downloadChartBtn.disabled = false;
   downloadCsvBtn.disabled = false;
+}
+
+function downloadCanvasAsPng(canvas, filename) {
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = filename;
+  link.click();
 }
 
 function downloadPatternPng() {
@@ -191,10 +270,21 @@ function downloadPatternPng() {
     return;
   }
 
-  const link = document.createElement('a');
-  link.href = beadCanvas.toDataURL('image/png');
-  link.download = `miyuki-manilla-${lastPattern.beadWidth}x${lastPattern.beadHeight}.png`;
-  link.click();
+  downloadCanvasAsPng(
+    beadCanvas,
+    `miyuki-manilla-bolitas-${lastPattern.beadWidth}x${lastPattern.beadHeight}.png`
+  );
+}
+
+function downloadChartPng() {
+  if (!lastPattern) {
+    return;
+  }
+
+  downloadCanvasAsPng(
+    chartCanvas,
+    `miyuki-manilla-tabla-${lastPattern.beadWidth}x${lastPattern.beadHeight}.png`
+  );
 }
 
 function downloadPatternCsv() {
@@ -232,4 +322,5 @@ imageInput.addEventListener('change', (event) => {
 
 generateBtn.addEventListener('click', generatePattern);
 downloadPngBtn.addEventListener('click', downloadPatternPng);
+downloadChartBtn.addEventListener('click', downloadChartPng);
 downloadCsvBtn.addEventListener('click', downloadPatternCsv);

@@ -1,6 +1,6 @@
 # Diseñador de bolitas Miyuki
 
-App web para convertir imágenes en una guía de manilla Miyuki fácil de construir.
+App web para convertir imágenes en una guía de manilla Miyuki fácil de construir, con una vista inspirada en herramientas tipo **BeadTool**.
 
 ## Enfoque para manillas (recomendado)
 
@@ -18,9 +18,13 @@ App web para convertir imágenes en una guía de manilla Miyuki fácil de constr
    - **Grosor visual** de cada bolita (solo vista).
    - **Colores máximos** para simplificar el armado.
 4. Haz clic en **Generar guía de manilla**.
-5. Usa la sección **Guía rápida por filas** para ensartar por secuencias (`C1x4 · C2x2...`).
-6. Descarga:
-   - **PNG del patrón** para imprimir/compartir.
+5. Usa las dos vistas principales:
+   - **Vista bolitas** para revisar el resultado visual final.
+   - **Tabla de patrón (códigos)** con cuadrícula y numeración para construir más fácil.
+6. Usa la sección **Guía rápida por filas** para ensartar por secuencias (`C1x4 · C2x2...`).
+7. Descarga:
+   - **PNG bolitas** para imprimir/compartir referencia visual.
+   - **PNG tabla** para guía técnica por código.
    - **Matriz CSV** con códigos de color (`C1`, `C2`, etc.).
 
 ## Despliegue en GitHub Pages
