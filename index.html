@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diseñador Miyuki</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1>Convertidor a diseño de bolitas Miyuki</h1>
+      <p>
+        Crea una guía estilo <strong>bead tool</strong>: vista de bolitas, tabla con códigos y secuencias por fila.
+      </p>
+
+      <section class="controls">
+        <label>
+          Imagen
+          <input id="imageInput" type="file" accept="image/*" />
+        </label>
+
+        <label>
+          Largo manilla (columnas)
+          <input id="beadWidth" type="number" min="40" max="400" value="200" />
+        </label>
+
+        <label>
+          Grosor manilla (filas)
+          <input id="beadHeight" type="number" min="6" max="30" value="12" />
+        </label>
+
+        <label>
+          Grosor visual (px por bolita)
+          <input id="beadSize" type="number" min="4" max="30" value="10" />
+        </label>
+
+        <label>
+          Colores máximos (paleta)
+          <input id="paletteSize" type="number" min="2" max="32" value="12" />
+        </label>
+
+        <button id="generateBtn">Generar guía de manilla</button>
+      </section>
+
+      <section class="actions">
+        <div id="summary" class="summary">Carga una imagen para empezar.</div>
+        <button id="downloadPngBtn" disabled>Descargar PNG bolitas</button>
+        <button id="downloadChartBtn" disabled>Descargar PNG tabla</button>
+        <button id="downloadCsvBtn" disabled>Descargar matriz CSV</button>
+      </section>
+
+      <section class="preview-grid">
+        <div class="preview-panel">
+          <h2>Imagen original</h2>
+          <canvas id="sourceCanvas"></canvas>
+        </div>
+        <div class="preview-panel">
+          <h2>Vista bolitas</h2>
+          <canvas id="beadCanvas"></canvas>
+        </div>
+        <div class="preview-panel">
+          <h2>Tabla de patrón (códigos)</h2>
+          <canvas id="chartCanvas"></canvas>
+        </div>
+      </section>
+
+      <section id="legend" class="legend"></section>
+
+      <section class="guide-panel">
+        <h2>Guía rápida por filas</h2>
+        <p>
+          Construye de <strong>izquierda a derecha</strong>. Cada fila muestra secuencias para ensartar más fácil.
+        </p>
+        <pre id="rowGuide" class="row-guide">Genera un patrón para ver la guía.</pre>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
